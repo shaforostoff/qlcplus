@@ -24,6 +24,9 @@
 #include <QList>
 #include <QMap>
 
+#include "flatmap.h"
+
+
 class QLCFixtureMode;
 class QXmlStreamReader;
 class QXmlStreamWriter;
@@ -90,7 +93,7 @@ public:
     /**
      * Return a copy of the cached channel map
      */
-    QMap<int, quint32> channelsMap() const;
+    FlatMap<int, quint32> channelsMap() const;
 
     /**
      * Get a list of CMY channels. If the fixture doesn't support CMY mixing,
@@ -125,7 +128,7 @@ protected:
      *  <int> channel type: @see QLCChannel::Group and QLCChannel::PrimaryColour
      *  <quint32> channel MSB index << 16 | channel LSB index
      */
-    QMap<int, quint32> m_channelsMap;
+    FlatMap<int, quint32> m_channelsMap;
 
     /** The color wheel channels */
     QVector <quint32> m_colorWheels;

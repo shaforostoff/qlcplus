@@ -93,7 +93,6 @@ bool Scene::copyFrom(const Function* function)
     if (scene == NULL)
         return false;
 
-    m_values.clear();
     m_values = scene->m_values;
     m_fixtures.clear();
     m_fixtures = scene->m_fixtures;
@@ -126,16 +125,16 @@ void Scene::setValue(const SceneValue& scv, bool blind, bool checkHTP)
     {
         QMutexLocker locker(&m_valueListMutex);
 
-        QMap<SceneValue, uchar>::iterator it = m_values.find(scv);
+        auto it = m_values.find(scv);
         if (it == m_values.end())
         {
-            m_values.insert(scv, scv.value);
+            m_values[scv] = scv.value;
             valChanged = true;
         }
-        else if (it.value() != scv.value)
+        else if (it->second != scv.value)
         {
-            const_cast<uchar&>(it.key().value) = scv.value;
-            it.value() = scv.value;
+            const_cast<uchar&>(it->first.value) = scv.value;
+            it->second = scv.value;
             valChanged = true;
         }
 
@@ -200,17 +199,20 @@ bool Scene::checkValue(SceneValue val)
 
 QList <SceneValue> Scene::values() const
 {
-    return m_values.keys();
+    QList<SceneValue> ids;
+    for(auto it = m_values.begin(); it != m_values.end(); it++)
+        ids << it->first;
+    return ids;
 }
 
 QList<quint32> Scene::components()
 {
     QList<quint32> ids;
 
-    foreach (SceneValue scv, m_values.keys())
+    for(auto it = m_values.begin(); it != m_values.end(); it++)
     {
-        if (ids.contains(scv.fxi) == false)
-            ids.append(scv.fxi);
+        if (ids.contains(it->first.fxi) == false)
+            ids.append(it->first.fxi);
     }
 
     return ids;
@@ -223,8 +225,10 @@ QColor Scene::colorValue(quint32 fxi)
     bool found = false;
     QColor CMYcol;
 
-    foreach (SceneValue scv, m_values.keys())
+    for(auto it = m_values.begin(); it != m_values.end(); it++)
     {
+        const SceneValue& scv = it->first;
+
         if (fxi != Fixture::invalidId() && fxi != scv.fxi)
             continue;
 
@@ -338,15 +342,16 @@ void Scene::slotFixtureRemoved(quint32 fxi_id)
 {
     bool hasChanged = false;
 
-    QMutableMapIterator <SceneValue, uchar> it(m_values);
-    while (it.hasNext() == true)
+    for(auto it = m_values.begin(); it != m_values.end();)
     {
-        SceneValue value(it.next().key());
+        const SceneValue& value(it->first);
         if (value.fxi == fxi_id)
         {
-            it.remove();
+            it = m_values.erase(it);
             hasChanged = true;
         }
+        else
+            it++;
     }
 
     if (removeFixture(fxi_id))
@@ -446,7 +451,7 @@ bool Scene::saveXML(QXmlStreamWriter *doc)
 
     /* Scene contents */
     // make a copy of the Scene values cause we need to empty it in the process
-    QList<SceneValue> values = m_values.keys();
+    QList<SceneValue> values = Scene::values();
 
     // loop through the Scene Fixtures in the order they've been added
     foreach (quint32 fxId, m_fixtures)
@@ -621,13 +626,14 @@ void Scene::postLoad()
     }
 
     // Remove such fixtures and channels that don't exist
-    QMutableMapIterator <SceneValue, uchar> it(m_values);
-    while (it.hasNext() == true)
+    for(auto it = m_values.begin(); it != m_values.end();)
     {
-        SceneValue value(it.next().key());
+        const SceneValue& value(it->first);
         Fixture* fxi = doc()->fixture(value.fxi);
         if (fxi == NULL || fxi->channel(value.channel) == NULL)
-            it.remove();
+            it = m_values.erase(it);
+        else
+            it++;
     }
 }
 
@@ -667,8 +673,10 @@ void Scene::writeDMX(MasterTimer *timer, QList<Universe *> ua)
         {
             // Keep HTP and LTP channels up. Flash is more or less a forceful intervention
             // so enforce all values that the user has chosen to flash.
-            foreach (const SceneValue& sv, m_values.keys())
+            for(auto it = m_values.begin(); it != m_values.end(); it++)
             {
+                const SceneValue& sv = it->first;
+
                 FadeChannel fc(doc(), sv.fxi, sv.channel);
                 quint32 universe = fc.universe();
                 if (universe == Universe::invalid())
@@ -812,7 +820,7 @@ void Scene::write(MasterTimer *timer, QList<Universe*> ua)
 {
     //qDebug() << Q_FUNC_INFO << elapsed();
 
-    if (m_values.count() == 0 && m_palettes.count() == 0)
+    if (m_values.size() == 0 && m_palettes.count() == 0)
     {
         stop(FunctionParent::master());
         return;
@@ -836,10 +844,9 @@ void Scene::write(MasterTimer *timer, QList<Universe*> ua)
         }
 
         QMutexLocker locker(&m_valueListMutex);
-        QMapIterator <SceneValue, uchar> it(m_values);
-        while (it.hasNext() == true)
+        for(auto it = m_values.begin(); it != m_values.end(); it++)
         {
-            SceneValue scv(it.next().key());
+            SceneValue scv(it->first);
             processValue(timer, ua, fadeIn, scv);
         }
     }

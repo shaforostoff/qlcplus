@@ -24,6 +24,8 @@
 #include <QMutex>
 #include <QList>
 
+#include <flatmap.h>
+
 #include "genericfader.h"
 #include "fadechannel.h"
 #include "scenevalue.h"
@@ -152,7 +154,7 @@ signals:
     void valueChanged(SceneValue scv);
 
 protected:
-    QMap <SceneValue, uchar> m_values;
+    FlatMap <SceneValue, uchar> m_values;
     QMutex m_valueListMutex;
 
     /*********************************************************************
