@@ -133,7 +133,7 @@ private slots:
     void slotAliasChanged();
     void slotUniverseSliderValueChanged(quint32, quint32, uchar value);
     void slotUpdateUniverseSliders();
-    void slotUniverseWritten(quint32 idx, const QByteArray& universeData);
+    void slotUniverseWritten(quint32 idx, QByteArray universeData);
 
 private:
     QFrame *m_universeGroup;

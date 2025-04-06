@@ -149,8 +149,8 @@ SimpleDesk::SimpleDesk(QWidget* parent, Doc* doc)
     connect(m_doc->inputOutputMap(), SIGNAL(universeRemoved(quint32)),
             this, SLOT(slotDocChanged()));
 
-    connect(m_doc->inputOutputMap(), SIGNAL(universeWritten(quint32, const QByteArray&)),
-            this, SLOT(slotUniverseWritten(quint32, const QByteArray&)));
+    connect(m_doc->inputOutputMap(), SIGNAL(universeWritten(quint32, QByteArray)),
+            this, SLOT(slotUniverseWritten(quint32, QByteArray)));
 }
 
 SimpleDesk::~SimpleDesk()
@@ -965,7 +965,7 @@ void SimpleDesk::slotUniverseSliderValueChanged(quint32 fid, quint32 chan, uchar
     }
 }
 
-void SimpleDesk::slotUniverseWritten(quint32 idx, const QByteArray& universeData)
+void SimpleDesk::slotUniverseWritten(quint32 idx, QByteArray universeData)
 {
     // If Simple Desk is not visible, don't even waste CPU
     if (isVisible() == false)

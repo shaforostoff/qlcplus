@@ -44,6 +44,18 @@
 #define KXMLUniverseAdditiveBlend "Additive"
 #define KXMLUniverseSubtractiveBlend "Subtractive"
 
+static uchar* zeroed_aligned_malloc(size_t bytes)
+{
+#ifdef __linux__
+	uchar* p = static_cast<uchar*>(std::aligned_alloc(64, bytes));
+#else
+	uchar* p = static_cast<uchar*>(malloc(bytes));
+#endif
+
+	memset(p, 0, bytes);
+	return p;
+}
+
 Universe::Universe(quint32 id, GrandMaster *gm, QObject *parent)
     : QThread(parent)
     , m_id(id)
@@ -63,8 +75,8 @@ Universe::Universe(quint32 id, GrandMaster *gm, QObject *parent)
     , m_totalChannelsChanged(false)
     , m_intensityChannelsChanged(false)
     , m_preGMValues(new QByteArray(UNIVERSE_SIZE, char(0)))
-    , m_postGMValues(new QByteArray(UNIVERSE_SIZE, char(0)))
-    , m_lastPostGMValues(new QByteArray(UNIVERSE_SIZE, char(0)))
+    , m_postGMValues(zeroed_aligned_malloc(UNIVERSE_SIZE))
+    , m_lastPostGMValues(zeroed_aligned_malloc(UNIVERSE_SIZE))
     , m_blackoutValues(new QByteArray(UNIVERSE_SIZE, char(0)))
     , m_passthroughValues()
 {
@@ -97,6 +109,9 @@ Universe::~Universe()
         delete patch;
     }
     delete m_fbPatch;
+
+    std::free(m_lastPostGMValues);
+    std::free(m_postGMValues);
 }
 
 void Universe::setName(QString name)
@@ -136,9 +151,9 @@ ushort Universe::totalChannels()
 bool Universe::hasChanged()
 {
     bool changed =
-        memcmp(m_lastPostGMValues->constData(), m_postGMValues->constData(), m_usedChannels) != 0;
-    if (changed)
-        memcpy(m_lastPostGMValues->data(), m_postGMValues->constData(), m_usedChannels);
+        memcmp(m_lastPostGMValues, m_postGMValues, m_usedChannels) != 0;
+    if (changed) [[unlikely]]
+        memcpy(m_lastPostGMValues, m_postGMValues, m_usedChannels);
     return changed;
 }
 
@@ -347,7 +362,7 @@ void Universe::processFaders()
     }
 
     bool dataChanged = hasChanged();
-    const QByteArray postGM = m_postGMValues->mid(0, m_usedChannels);
+    const QByteArray postGM = postGMValues(m_usedChannels);
     dumpOutput(postGM, dataChanged);
 
     if (dataChanged)
@@ -388,9 +403,9 @@ void Universe::reset()
     m_blackoutValues->fill(0);
 
     if (m_passthrough)
-        (*m_postGMValues) = (*m_passthroughValues);
+        memcpy(m_postGMValues, m_passthroughValues->constData(), UNIVERSE_SIZE);
     else
-        m_postGMValues->fill(0);
+        memset(m_postGMValues, 0, UNIVERSE_SIZE);
 
     m_modifiers.fill(NULL, UNIVERSE_SIZE);
     m_passthrough = false; // not releasing m_passthroughValues, see comment in setPassthrough
@@ -406,7 +421,7 @@ void Universe::reset(int address, int range)
 
     memset(m_preGMValues->data() + address, 0, range * sizeof(*m_preGMValues->data()));
     memset(m_blackoutValues->data() + address, 0, range * sizeof(*m_blackoutValues->data()));
-    memcpy(m_postGMValues->data() + address, m_modifiedZeroValues->data() + address, range * sizeof(*m_postGMValues->data()));
+    memcpy(m_postGMValues + address, m_modifiedZeroValues->data() + address, range * sizeof(*m_postGMValues));
 
     applyPassthroughValues(address, range);
 }
@@ -418,9 +433,9 @@ void Universe::applyPassthroughValues(int address, int range)
 
     for (int i = address; i < address + range && i < UNIVERSE_SIZE; i++)
     {
-        if (static_cast<uchar>(m_postGMValues->at(i)) < static_cast<uchar>(m_passthroughValues->at(i))) // HTP merge
+        if (static_cast<uchar>(m_postGMValues[i]) < static_cast<uchar>(m_passthroughValues->at(i))) // HTP merge
         {
-            (*m_postGMValues)[i] = (*m_passthroughValues)[i];
+            m_postGMValues[i] = (*m_passthroughValues)[i];
         }
     }
 }
@@ -451,15 +466,15 @@ QHash<int, uchar> Universe::intensityChannels()
 
 uchar Universe::postGMValue(int address) const
 {
-    if (address >= m_postGMValues->size())
+    if (address >= UNIVERSE_SIZE)
         return 0;
 
-    return uchar(m_postGMValues->at(address));
+    return uchar(m_postGMValues[address]);
 }
 
-const QByteArray* Universe::postGMValues() const
+QByteArray Universe::postGMValues(int numChannels) const
 {
-    return m_postGMValues.data();
+    return QByteArray::fromRawData((char*)m_postGMValues, numChannels);
 }
 
 Universe::BlendMode Universe::stringToBlendMode(QString mode)
@@ -555,7 +570,7 @@ void Universe::updatePostGMValue(int channel)
     value = applyModifiers(channel, value);
     value = applyPassthrough(channel, value);
 
-    (*m_postGMValues)[channel] = static_cast<char>(value);
+    m_postGMValues[channel] = static_cast<char>(value);
 }
 
 /************************************************************************
