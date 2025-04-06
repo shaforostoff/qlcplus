@@ -27,6 +27,8 @@
 #include <QIcon>
 #include <QHash>
 
+#include <flatmap.h>
+
 #include "qlcchannel.h"
 #include "qlcfixturedef.h"
 
@@ -44,23 +46,23 @@ class Doc;
  * @{
  */
 
-#define KXMLFixture                 QString("Fixture")
-#define KXMLFixtureName             QString("Name")
-#define KXMLFixtureUniverse         QString("Universe")
-#define KXMLFixtureCrossUniverse    QString("CrossUniverse")
-#define KXMLFixtureAddress          QString("Address")
-#define KXMLFixtureID               QString("ID")
-#define KXMLFixtureGeneric          QString("Generic")
-#define KXMLFixtureRGBPanel         QString("RGBPanel")
-#define KXMLFixtureChannels         QString("Channels")
-#define KXMLFixtureDimmer           QString("Dimmer")
-#define KXMLFixtureExcludeFade      QString("ExcludeFade")
-#define KXMLFixtureForcedHTP        QString("ForcedHTP")
-#define KXMLFixtureForcedLTP        QString("ForcedLTP")
+#define KXMLFixture                 QLatin1String("Fixture")
+#define KXMLFixtureName             QLatin1String("Name")
+#define KXMLFixtureUniverse         QLatin1String("Universe")
+#define KXMLFixtureCrossUniverse    QLatin1String("CrossUniverse")
+#define KXMLFixtureAddress          QLatin1String("Address")
+#define KXMLFixtureID               QLatin1String("ID")
+#define KXMLFixtureGeneric          QLatin1String("Generic")
+#define KXMLFixtureRGBPanel         QLatin1String("RGBPanel")
+#define KXMLFixtureChannels         QLatin1String("Channels")
+#define KXMLFixtureDimmer           QLatin1String("Dimmer")
+#define KXMLFixtureExcludeFade      QLatin1String("ExcludeFade")
+#define KXMLFixtureForcedHTP        QLatin1String("ForcedHTP")
+#define KXMLFixtureForcedLTP        QLatin1String("ForcedLTP")
 
-#define KXMLFixtureChannelModifier  QString("Modifier")
-#define KXMLFixtureChannelIndex     QString("Channel")
-#define KXMLFixtureModifierName     QString("Name")
+#define KXMLFixtureChannelModifier  QLatin1String("Modifier")
+#define KXMLFixtureChannelIndex     QLatin1String("Channel")
+#define KXMLFixtureModifierName     QLatin1String("Name")
 
 typedef struct
 {
@@ -353,7 +355,7 @@ protected:
     /** Hash holding the pair <channel index, modifier pointer>
      *  This is basically the place to store them to be saved/loaded
      *  on the project XML file */
-    QHash<quint32, ChannelModifier*> m_channelModifiers;
+    FlatMap<quint32, ChannelModifier*> m_channelModifiers;
 
     /*********************************************************************
      * Channel info

@@ -26,6 +26,8 @@
 #include <QList>
 #include <QHash>
 
+#include "flatmap.h"
+
 #include "qlcfixturehead.h"
 #include "qlcfixturedef.h"
 #include "qlcphysical.h"
@@ -42,11 +44,11 @@ class QLCChannel;
  * @{
  */
 
-#define KXMLQLCFixtureMode              QString("Mode")
-#define KXMLQLCFixtureModeName          QString("Name")
-#define KXMLQLCFixtureModeChannel       QString("Channel")
-#define KXMLQLCFixtureModeChannelNumber QString("Number")
-#define KXMLQLCFixtureModeChannelActsOn QString("ActsOn")
+#define KXMLQLCFixtureMode              QLatin1String("Mode")
+#define KXMLQLCFixtureModeName          QLatin1String("Name")
+#define KXMLQLCFixtureModeChannel       QLatin1String("Channel")
+#define KXMLQLCFixtureModeChannelNumber QLatin1String("Number")
+#define KXMLQLCFixtureModeChannelActsOn QLatin1String("ActsOn")
 
 /**
  * QLCFixtureMode is essentially a collection of QLCChannels, arranged in such
@@ -224,12 +226,12 @@ protected:
 
     /** Map of channel indices that act on other channels.
      * These are stored as: <index, acts on index> */
-    QMap<quint32, quint32> m_actsOnMap;
+    FlatMap<quint32, quint32> m_actsOnMap;
 
     /** Map of channel indices that relate to some other primary channel.
      *  For example Pan Fine vs Pan, Red Fine vs Red, etc
      *  These are stored as: <secondary index, primary index> */
-    QMap<quint32, quint32> m_secondaryMap;
+    FlatMap<quint32, quint32> m_secondaryMap;
 
     quint32 m_masterIntensityChannel;
 
@@ -320,7 +322,6 @@ public:
 
     /** Save a mode to an XML document */
     bool saveXML(QXmlStreamWriter *doc);
-    QHash<QLCChannel *, QLCChannel *> actsOnChannelsList() const;
 };
 
 /** @} */

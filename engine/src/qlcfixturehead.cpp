@@ -112,7 +112,7 @@ QVector <quint32> QLCFixtureHead::rgbChannels() const
     return vector;
 }
 
-QMap<int, quint32> QLCFixtureHead::channelsMap() const
+FlatMap<int, quint32> QLCFixtureHead::channelsMap() const
 {
     return m_channelsMap;
 }

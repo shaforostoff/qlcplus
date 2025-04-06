@@ -38,21 +38,21 @@ class QXmlStreamWriter;
  * @{
  */
 
-#define KXMLQLCChannel          QString("Channel")
-#define KXMLQLCChannelName      QString("Name")
-#define KXMLQLCChannelPreset    QString("Preset")
-#define KXMLQLCChannelGroup     QString("Group")
-#define KXMLQLCChannelDefault   QString("Default")
-#define KXMLQLCChannelGroupByte QString("Byte")
-#define KXMLQLCChannelColour    QString("Colour")
+#define KXMLQLCChannel          QLatin1String("Channel")
+#define KXMLQLCChannelName      QLatin1String("Name")
+#define KXMLQLCChannelPreset    QLatin1String("Preset")
+#define KXMLQLCChannelGroup     QLatin1String("Group")
+#define KXMLQLCChannelDefault   QLatin1String("Default")
+#define KXMLQLCChannelGroupByte QLatin1String("Byte")
+#define KXMLQLCChannelColour    QLatin1String("Colour")
 
 /* Compound strings used by PaletteGenerator to identify
  * special fixture modes
  */
-#define KQLCChannelMovement  QString("Movement")
-#define KQLCChannelRGB       QString("RGB")
-#define KQLCChannelCMY       QString("CMY")
-#define KQLCChannelWhite     QString("White")
+#define KQLCChannelMovement  QLatin1String("Movement")
+#define KQLCChannelRGB       QLatin1String("RGB")
+#define KQLCChannelCMY       QLatin1String("CMY")
+#define KQLCChannelWhite     QLatin1String("White")
 
 /**
  * QLCChannel represents one DMX channel with one or more DMX value ranges,
