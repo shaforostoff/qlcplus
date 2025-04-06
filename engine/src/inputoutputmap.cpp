@@ -103,7 +103,7 @@ bool InputOutputMap::setBlackout(bool blackout)
                 op->setBlackout(blackout);
         }
 
-        const QByteArray postGM = universe->postGMValues()->mid(0, universe->usedChannels());
+        const QByteArray postGM = universe->postGMValues(universe->usedChannels());
         universe->dumpOutput(postGM, true);
     }
 

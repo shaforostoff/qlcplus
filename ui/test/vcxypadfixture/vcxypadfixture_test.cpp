@@ -994,7 +994,7 @@ void VCXYPadFixture_Test::readRange()
 
     ua[0]->write(0, valueAt0);
     ua[0]->processFaders();
-    QByteArray uniData = QByteArray(ua[0]->postGMValues()->data(), ua[0]->usedChannels());
+    QByteArray uniData = ua[0]->postGMValues(ua[0]->usedChannels());
     xy.readDMX(uniData, xmul, ymul);
     // the value was scaled to interval rangeMax-rangeMin,
     // so the resolution is less than 1/that range
@@ -1004,7 +1004,7 @@ void VCXYPadFixture_Test::readRange()
     // handle on the right
     ua[0]->write(0, valueAt1);
     ua[0]->processFaders();
-    uniData = QByteArray(ua[0]->postGMValues()->data(), ua[0]->usedChannels());
+    uniData = ua[0]->postGMValues(ua[0]->usedChannels());
     xy.readDMX(uniData, xmul, ymul);
     // again, the resolution depends on the range.
     // here the value should be near one

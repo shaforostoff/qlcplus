@@ -123,7 +123,7 @@ public:
 
 private slots:
     void slotDocModified(bool state);
-    void slotUniverseWritten(quint32 idx, const QByteArray& ua);
+    void slotUniverseWritten(quint32 idx, QByteArray ua);
 
 private:
     void initDoc();

@@ -57,15 +57,14 @@ void Universe_Test::initial()
 
     QCOMPARE(preGM.length(), 512);
 
-    QByteArray const *postGM = m_uni->postGMValues();
-    QVERIFY(postGM != NULL);
-    QCOMPARE(postGM->length(), 512);
+    QByteArray const postGM = m_uni->postGMValues();
+    QCOMPARE(postGM.length(), 512);
 
     for (ushort i = 0; i < 512; ++i)
     {
         QVERIFY(m_uni->channelCapabilities(i) == Universe::Undefined);
         QCOMPARE(int(preGM.at(i)), 0);
-        QCOMPARE(int(postGM->at(i)), 0);
+        QCOMPARE(int(postGM.at(i)), 0);
     }
 }
 
@@ -106,33 +105,33 @@ void Universe_Test::blendModes()
     QVERIFY(m_uni->write(0, 255) == true);
     QVERIFY(m_uni->write(4, 128) == true);
     QVERIFY(m_uni->write(9, 100) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(0)), quint8(255));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(4)), quint8(128));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(100));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(11)), quint8(0));
+    QCOMPARE(quint8(m_uni->postGMValues().at(0)), quint8(255));
+    QCOMPARE(quint8(m_uni->postGMValues().at(4)), quint8(128));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(100));
+    QCOMPARE(quint8(m_uni->postGMValues().at(11)), quint8(0));
 
     /* check masking on 0 remains 0 */
     QVERIFY(m_uni->writeBlended(11, 128, 1, Universe::MaskBlend) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(11)), quint8(0));
+    QCOMPARE(quint8(m_uni->postGMValues().at(11)), quint8(0));
 
     /* check 180 masked on 128 gets halved */
     QVERIFY(m_uni->writeBlended(4, 180, 1, Universe::MaskBlend) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(4)), quint8(90));
+    QCOMPARE(quint8(m_uni->postGMValues().at(4)), quint8(90));
 
     /* chek adding 50 to 100 is actually 150 */
     QVERIFY(m_uni->writeBlended(9, 50, 1, Universe::AdditiveBlend) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(150));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(150));
 
     /* chek subtracting 55 to 255 is actually 200 */
     QVERIFY(m_uni->writeBlended(0, 55, 1, Universe::SubtractiveBlend) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(0)), quint8(200));
+    QCOMPARE(quint8(m_uni->postGMValues().at(0)), quint8(200));
 
     QVERIFY(m_uni->writeBlended(0, 255, 1, Universe::SubtractiveBlend) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(0)), quint8(0));
+    QCOMPARE(quint8(m_uni->postGMValues().at(0)), quint8(0));
 
     /* check an unknown blend mode */
     QVERIFY(m_uni->writeBlended(9, 255, 1, Universe::BlendMode(42)) == false);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(150));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(150));
 }
 
 void Universe_Test::grandMasterIntensityReduce()
@@ -152,11 +151,11 @@ void Universe_Test::grandMasterIntensityReduce()
     m_uni->write(4, 50);
 
     m_gm->setValue(63);
-    QCOMPARE(int(m_uni->postGMValues()->at(0)), int(2));
-    QCOMPARE(int(m_uni->postGMValues()->at(1)), int(5));
-    QCOMPARE(int(m_uni->postGMValues()->at(2)), int(30));
-    QCOMPARE(int(m_uni->postGMValues()->at(3)), int(40));
-    QCOMPARE(int(m_uni->postGMValues()->at(4)), int(12));
+    QCOMPARE(int(m_uni->postGMValues().at(0)), int(2));
+    QCOMPARE(int(m_uni->postGMValues().at(1)), int(5));
+    QCOMPARE(int(m_uni->postGMValues().at(2)), int(30));
+    QCOMPARE(int(m_uni->postGMValues().at(3)), int(40));
+    QCOMPARE(int(m_uni->postGMValues().at(4)), int(12));
     QCOMPARE(m_uni->usedChannels(), ushort(5));
 }
 
@@ -179,18 +178,18 @@ void Universe_Test::grandMasterIntensityLimit()
     m_gm->setValueMode(GrandMaster::Limit);
 
     m_gm->setValue(63);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(0)), quint8(10));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(1)), quint8(20));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(2)), quint8(30));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(3)), quint8(40));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(4)), quint8(50));
+    QCOMPARE(quint8(m_uni->postGMValues().at(0)), quint8(10));
+    QCOMPARE(quint8(m_uni->postGMValues().at(1)), quint8(20));
+    QCOMPARE(quint8(m_uni->postGMValues().at(2)), quint8(30));
+    QCOMPARE(quint8(m_uni->postGMValues().at(3)), quint8(40));
+    QCOMPARE(quint8(m_uni->postGMValues().at(4)), quint8(50));
 
     m_gm->setValue(5);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(0)), quint8(5));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(1)), quint8(5));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(2)), quint8(30));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(3)), quint8(40));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(4)), quint8(5));
+    QCOMPARE(quint8(m_uni->postGMValues().at(0)), quint8(5));
+    QCOMPARE(quint8(m_uni->postGMValues().at(1)), quint8(5));
+    QCOMPARE(quint8(m_uni->postGMValues().at(2)), quint8(30));
+    QCOMPARE(quint8(m_uni->postGMValues().at(3)), quint8(40));
+    QCOMPARE(quint8(m_uni->postGMValues().at(4)), quint8(5));
     QCOMPARE(m_uni->usedChannels(), ushort(5));
 }
 
@@ -213,11 +212,11 @@ void Universe_Test::grandMasterAllChannelsReduce()
     m_gm->setChannelMode(GrandMaster::AllChannels);
 
     m_gm->setValue(63);
-    QCOMPARE(int(m_uni->postGMValues()->at(0)), int(2));
-    QCOMPARE(int(m_uni->postGMValues()->at(1)), int(5));
-    QCOMPARE(int(m_uni->postGMValues()->at(2)), int(7));
-    QCOMPARE(int(m_uni->postGMValues()->at(3)), int(10));
-    QCOMPARE(int(m_uni->postGMValues()->at(4)), int(12));
+    QCOMPARE(int(m_uni->postGMValues().at(0)), int(2));
+    QCOMPARE(int(m_uni->postGMValues().at(1)), int(5));
+    QCOMPARE(int(m_uni->postGMValues().at(2)), int(7));
+    QCOMPARE(int(m_uni->postGMValues().at(3)), int(10));
+    QCOMPARE(int(m_uni->postGMValues().at(4)), int(12));
     QCOMPARE(m_uni->usedChannels(), ushort(5));
 }
 
@@ -241,18 +240,18 @@ void Universe_Test::grandMasterAllChannelsLimit()
     m_gm->setValueMode(GrandMaster::Limit);
 
     m_gm->setValue(63);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(0)), quint8(10));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(1)), quint8(20));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(2)), quint8(30));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(3)), quint8(40));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(4)), quint8(50));
+    QCOMPARE(quint8(m_uni->postGMValues().at(0)), quint8(10));
+    QCOMPARE(quint8(m_uni->postGMValues().at(1)), quint8(20));
+    QCOMPARE(quint8(m_uni->postGMValues().at(2)), quint8(30));
+    QCOMPARE(quint8(m_uni->postGMValues().at(3)), quint8(40));
+    QCOMPARE(quint8(m_uni->postGMValues().at(4)), quint8(50));
 
     m_gm->setValue(5);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(0)), quint8(5));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(1)), quint8(5));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(2)), quint8(5));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(3)), quint8(5));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(4)), quint8(5));
+    QCOMPARE(quint8(m_uni->postGMValues().at(0)), quint8(5));
+    QCOMPARE(quint8(m_uni->postGMValues().at(1)), quint8(5));
+    QCOMPARE(quint8(m_uni->postGMValues().at(2)), quint8(5));
+    QCOMPARE(quint8(m_uni->postGMValues().at(3)), quint8(5));
+    QCOMPARE(quint8(m_uni->postGMValues().at(4)), quint8(5));
     QCOMPARE(m_uni->usedChannels(), ushort(5));
 }
 
@@ -305,80 +304,80 @@ void Universe_Test::write()
     m_uni->setChannelCapability(UNIVERSE_SIZE - 1, QLCChannel::Intensity);
 
     QVERIFY(m_uni->write(UNIVERSE_SIZE - 1, 255) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(UNIVERSE_SIZE - 1)), quint8(255));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(0));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(4)), quint8(0));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(0)), quint8(0));
+    QCOMPARE(quint8(m_uni->postGMValues().at(UNIVERSE_SIZE - 1)), quint8(255));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(0));
+    QCOMPARE(quint8(m_uni->postGMValues().at(4)), quint8(0));
+    QCOMPARE(quint8(m_uni->postGMValues().at(0)), quint8(0));
 
     QVERIFY(m_uni->write(9, 255) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(UNIVERSE_SIZE - 1)), quint8(255));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(255));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(4)), quint8(0));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(0)), quint8(0));
+    QCOMPARE(quint8(m_uni->postGMValues().at(UNIVERSE_SIZE - 1)), quint8(255));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(255));
+    QCOMPARE(quint8(m_uni->postGMValues().at(4)), quint8(0));
+    QCOMPARE(quint8(m_uni->postGMValues().at(0)), quint8(0));
 
     QVERIFY(m_uni->write(0, 255) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(UNIVERSE_SIZE - 1)), quint8(255));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(255));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(4)), quint8(0));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(0)), quint8(255));
+    QCOMPARE(quint8(m_uni->postGMValues().at(UNIVERSE_SIZE - 1)), quint8(255));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(255));
+    QCOMPARE(quint8(m_uni->postGMValues().at(4)), quint8(0));
+    QCOMPARE(quint8(m_uni->postGMValues().at(0)), quint8(255));
 
     m_gm->setValue(127);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(UNIVERSE_SIZE - 1)), quint8(127));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(127));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(4)), quint8(0));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(0)), quint8(127));
+    QCOMPARE(quint8(m_uni->postGMValues().at(UNIVERSE_SIZE - 1)), quint8(127));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(127));
+    QCOMPARE(quint8(m_uni->postGMValues().at(4)), quint8(0));
+    QCOMPARE(quint8(m_uni->postGMValues().at(0)), quint8(127));
 
     QVERIFY(m_uni->write(4, 200) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(UNIVERSE_SIZE - 1)), quint8(127));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(127));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(4)), quint8(100));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(0)), quint8(127));
+    QCOMPARE(quint8(m_uni->postGMValues().at(UNIVERSE_SIZE - 1)), quint8(127));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(127));
+    QCOMPARE(quint8(m_uni->postGMValues().at(4)), quint8(100));
+    QCOMPARE(quint8(m_uni->postGMValues().at(0)), quint8(127));
 }
 
 void Universe_Test::writeRelative()
 {
     // 127 == 0
     QVERIFY(m_uni->writeRelative(9, 127, 1) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(0));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(4)), quint8(0));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(0)), quint8(0));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(0));
+    QCOMPARE(quint8(m_uni->postGMValues().at(4)), quint8(0));
+    QCOMPARE(quint8(m_uni->postGMValues().at(0)), quint8(0));
 
     // 255 == +128
     QVERIFY(m_uni->writeRelative(9, 255, 1) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(128));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(4)), quint8(0));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(0)), quint8(0));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(128));
+    QCOMPARE(quint8(m_uni->postGMValues().at(4)), quint8(0));
+    QCOMPARE(quint8(m_uni->postGMValues().at(0)), quint8(0));
 
     // 0 == -127
     QVERIFY(m_uni->writeRelative(9, 0, 1) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(1));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(4)), quint8(0));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(0)), quint8(0));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(1));
+    QCOMPARE(quint8(m_uni->postGMValues().at(4)), quint8(0));
+    QCOMPARE(quint8(m_uni->postGMValues().at(0)), quint8(0));
 
     m_uni->reset();
 
     QVERIFY(m_uni->write(9, 85) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(85));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(85));
 
     QVERIFY(m_uni->writeRelative(9, 117, 1) == true);
 
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(75));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(75));
     QVERIFY(m_uni->write(9, 65) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(65));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(65));
 
     m_uni->reset();
 
     QVERIFY(m_uni->write(9, 255) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(255));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(255));
     QVERIFY(m_uni->writeRelative(9, 255, 1) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(255));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(255));
 
     m_uni->reset();
 
     QVERIFY(m_uni->write(9, 0) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(0));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(0));
     QVERIFY(m_uni->writeRelative(9, 0, 1) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(0));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(0));
 
 
     m_uni->reset();
@@ -386,45 +385,45 @@ void Universe_Test::writeRelative()
     // write 4887 = 19*256+23
     QVERIFY(m_uni->write(9, 19) == true);
     QVERIFY(m_uni->write(10, 23) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(19));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(10)), quint8(23));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(19));
+    QCOMPARE(quint8(m_uni->postGMValues().at(10)), quint8(23));
 
     // write relative 30067 = 117*256+115
     QVERIFY(m_uni->writeRelative(9, 30067, 2) == true);
 
     // expect 2442 = 9*256+138
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(9));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(10)), quint8(138));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(9));
+    QCOMPARE(quint8(m_uni->postGMValues().at(10)), quint8(138));
 
 
 
     // write 4887 = 19*256+23
     QVERIFY(m_uni->write(9, 19) == true);
     QVERIFY(m_uni->write(10, 23) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(19));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(10)), quint8(23));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(19));
+    QCOMPARE(quint8(m_uni->postGMValues().at(10)), quint8(23));
 
     // write relative 27507 = 107*256+115
     QVERIFY(m_uni->writeRelative(9, 27507, 2) == true);
 
     // expect 0 (due to clamping)
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(0));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(10)), quint8(0));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(0));
+    QCOMPARE(quint8(m_uni->postGMValues().at(10)), quint8(0));
 
 
 
     // write 48663 = 190*256+23
     QVERIFY(m_uni->write(9, 190) == true);
     QVERIFY(m_uni->write(10, 23) == true);
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(190));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(10)), quint8(23));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(190));
+    QCOMPARE(quint8(m_uni->postGMValues().at(10)), quint8(23));
 
     // write relative 58995 = 230*256+115
     QVERIFY(m_uni->writeRelative(9, 58995, 2) == true);
 
     // expect 65535 = 255*256+255 (due to clamping)
-    QCOMPARE(quint8(m_uni->postGMValues()->at(9)), quint8(255));
-    QCOMPARE(quint8(m_uni->postGMValues()->at(10)), quint8(255));
+    QCOMPARE(quint8(m_uni->postGMValues().at(9)), quint8(255));
+    QCOMPARE(quint8(m_uni->postGMValues().at(10)), quint8(255));
 
 
 
@@ -440,20 +439,20 @@ void Universe_Test::reset()
     for (i = 0; i < 128; i++)
     {
         m_uni->write(i, 200);
-        QCOMPARE(quint8(m_uni->postGMValues()->at(i)), quint8(200));
+        QCOMPARE(quint8(m_uni->postGMValues().at(i)), quint8(200));
     }
 
     // Reset channels 10-127 (512 shouldn't cause a crash)
     m_uni->reset(10, 512);
     for (i = 0; i < 10; i++)
-        QCOMPARE(quint8(m_uni->postGMValues()->at(i)), quint8(200));
+        QCOMPARE(quint8(m_uni->postGMValues().at(i)), quint8(200));
     for (i = 10; i < 128; i++)
-        QCOMPARE(int(m_uni->postGMValues()->at(i)), 0);
+        QCOMPARE(int(m_uni->postGMValues().at(i)), 0);
 
     // Reset all
     m_uni->reset();
     for (i = 0; i < 128; i++)
-        QCOMPARE((int)m_uni->postGMValues()->at(i), 0);
+        QCOMPARE((int)m_uni->postGMValues().at(i), 0);
 }
 
 void Universe_Test::loadEmpty()
@@ -650,7 +649,7 @@ void Universe_Test::setGMValueEfficiency()
     }
 
     for (i = 0; i < 512; i++)
-        QCOMPARE(int(m_uni->postGMValues()->at(i)), int(100));
+        QCOMPARE(int(m_uni->postGMValues().at(i)), int(100));
 }
 
 void Universe_Test::writeEfficiency()
@@ -668,7 +667,7 @@ void Universe_Test::writeEfficiency()
     }
 
     for (i = 0; i < 512; i++)
-        QCOMPARE(int(m_uni->postGMValues()->at(i)), int(100));
+        QCOMPARE(int(m_uni->postGMValues().at(i)), int(100));
 }
 
 void Universe_Test::hasChangedEfficiency()
@@ -721,7 +720,7 @@ void Universe_Test::zeroIntensityChannelsEfficiency()
     }
 
     for (i = 0; i < 512; i++)
-        QCOMPARE(int(m_uni->postGMValues()->at(i)), int(0));
+        QCOMPARE(int(m_uni->postGMValues().at(i)), int(0));
 }
 
 void Universe_Test::zeroIntensityChannelsEfficiency2()
@@ -746,9 +745,9 @@ void Universe_Test::zeroIntensityChannelsEfficiency2()
     for (i = 0; i < 512; i++)
     {
         if (i % 2)
-            QCOMPARE(int(m_uni->postGMValues()->at(i)), int(0));
+            QCOMPARE(int(m_uni->postGMValues().at(i)), int(0));
         else
-            QCOMPARE(quint8(m_uni->postGMValues()->at(i)), quint8(200));
+            QCOMPARE(quint8(m_uni->postGMValues().at(i)), quint8(200));
     }
 }
 

@@ -369,7 +369,7 @@ protected:
     void run();
 
 signals:
-    void universeWritten(quint32 universeID, const QByteArray& universeData);
+    void universeWritten(quint32 universeID, QByteArray universeData);
 
 protected:
     QSemaphore m_semaphore;
@@ -421,7 +421,7 @@ public:
      *
      * @return The current values
      */
-    const QByteArray *postGMValues() const;
+    QByteArray postGMValues(int numChannels = UNIVERSE_SIZE) const;
 
     /**
      * Get the current pre-Grand-Master values (used by functions and everyone
@@ -486,9 +486,9 @@ protected:
     /** Array of values BEFORE the Grand Master changes */
     QScopedPointer<QByteArray> m_preGMValues;
     /** Array of values AFTER the Grand Master changes (applyGM) */
-    QScopedPointer<QByteArray> m_postGMValues;
+    uchar* m_postGMValues;
     /** Array of the last preGM values written before the zeroIntensityChannels call  */
-    QScopedPointer<QByteArray> m_lastPostGMValues;
+    uchar* m_lastPostGMValues;
     /** Array of non-intensity only values */
     QScopedPointer<QByteArray> m_blackoutValues;
 
