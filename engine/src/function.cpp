@@ -1253,11 +1253,12 @@ int Function::requestAttributeOverride(int attributeIndex, qreal value)
 
     if (m_attributes.at(attributeIndex).m_flags & Single)
     {
-        foreach (int id, m_overrideMap.keys())
+        QMap <int, AttributeOverride>::iterator it = m_overrideMap.begin();
+        for(; it != m_overrideMap.end(); it++)
         {
-            if (m_overrideMap[id].m_attrIndex == attributeIndex)
+            if (it.value().m_attrIndex == attributeIndex)
             {
-                attributeID = id;
+                attributeID = it.key();
                 break;
             }
         }
@@ -1410,7 +1411,7 @@ void Function::calculateOverrideValue(int attributeIndex)
     if (origAttr.m_flags & Multiply)
         finalValue = origAttr.m_value;
 
-    foreach (AttributeOverride attr, m_overrideMap.values())
+    foreach (AttributeOverride attr, m_overrideMap)
     {
         if (attr.m_attrIndex != attributeIndex)
             continue;

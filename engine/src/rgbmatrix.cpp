@@ -395,8 +395,9 @@ QString RGBMatrix::property(QString propName)
     QMutexLocker algoLocker(&m_algorithmMutex);
 
     /** If the property is cached, then return it right away */
-    if (m_properties.contains(propName))
-        return m_properties[propName];
+    QHash<QString, QString>::iterator it = m_properties.find(propName);
+    if (it != m_properties.end())
+        return it.value();
 
     /** Otherwise, let's retrieve it from the Script */
     if (m_algorithm != NULL && m_algorithm->type() == RGBAlgorithm::Script)
@@ -722,7 +723,7 @@ void RGBMatrix::postRun(MasterTimer *timer, QList<Universe *> universes)
         if (tempoType() == Beats)
             fadeout = beatsToTime(fadeout, timer->beatTimeDuration());
 
-        foreach (QSharedPointer<GenericFader> fader, m_fadersMap.values())
+        foreach (QSharedPointer<GenericFader> fader, m_fadersMap)
         {
             if (!fader.isNull())
                 fader->setFadeOut(true, fadeout);
@@ -928,7 +929,7 @@ int RGBMatrix::adjustAttribute(qreal fraction, int attributeId)
 
     if (attrIndex == Intensity)
     {
-        foreach (QSharedPointer<GenericFader> fader, m_fadersMap.values())
+        foreach (QSharedPointer<GenericFader> fader, m_fadersMap)
         {
             if (!fader.isNull())
                 fader->adjustIntensity(getAttributeValue(Function::Intensity));
@@ -947,7 +948,7 @@ void RGBMatrix::setBlendMode(Universe::BlendMode mode)
     if (mode == blendMode())
         return;
 
-    foreach (QSharedPointer<GenericFader> fader, m_fadersMap.values())
+    foreach (QSharedPointer<GenericFader> fader, m_fadersMap)
     {
         if (!fader.isNull())
             fader->setBlendMode(mode);

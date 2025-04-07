@@ -403,7 +403,7 @@ void CueStack::adjustIntensity(qreal fraction)
 {
     m_intensity = fraction;
 
-    foreach (QSharedPointer<GenericFader> fader, m_fadersMap.values())
+    foreach (QSharedPointer<GenericFader> fader, m_fadersMap)
     {
         if (!fader.isNull())
             fader->adjustIntensity(fraction);
@@ -563,7 +563,7 @@ void CueStack::postRun(MasterTimer* timer, QList<Universe *> ua)
     }
     else
     {
-        foreach (QSharedPointer<GenericFader> fader, m_fadersMap.values())
+        foreach (QSharedPointer<GenericFader> fader, m_fadersMap)
         {
             if (!fader.isNull())
                 fader->setFadeOut(true, fadeOutSpeed());
