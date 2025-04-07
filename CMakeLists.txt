@@ -1,4 +1,12 @@
 cmake_minimum_required(VERSION 3.16)
+
+if(APPLE)
+	cmake_host_system_information(RESULT HOST_MACOS_VERSION QUERY OS_VERSION)
+	if(HOST_MACOS_VERSION VERSION_GREATER 20) # 20 = bigSur
+		set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15")
+	endif()
+endif()
+
 project(qlcplus VERSION 4.14.1 LANGUAGES C CXX)
 
 # Set Release build type by default
