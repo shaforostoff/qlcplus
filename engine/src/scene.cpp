@@ -744,13 +744,17 @@ void Scene::processValue(MasterTimer *timer, QList<Universe*> ua, uint fadeIn, S
         {
             fc->addFlag(FadeChannel::CrossFade);
             fc->setCurrent(blendScene->value(scv.fxi, scv.channel), chIndex);
+#ifndef NDEBUG
             qDebug() << "----- BLEND from Scene" << blendScene->name()
                      << ", fixture:" << scv.fxi << ", channel:" << scv.channel << ", value:" << fc->current();
+#endif
         }
     }
     else
     {
+#ifndef NDEBUG
         qDebug() << "Scene" << name() << "add channel" << scv.channel << "from" << fc->current(chIndex) << "to" << scv.value;
+#endif
     }
 
     fc->setStart(fc->current(chIndex), chIndex);

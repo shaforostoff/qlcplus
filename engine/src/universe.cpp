@@ -1034,7 +1034,9 @@ bool Universe::writeBlended(int address, quint32 value, int channelCount, Univer
         {
             if (value)
             {
+#ifndef NDEBUG
                 qDebug() << "Current value" << currentValue << "value" << value;
+#endif
                 if (currentValue)
                     value = float(currentValue) * (float(value) / pow(255.0, channelCount));
                 else
