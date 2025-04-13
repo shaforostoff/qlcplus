@@ -32,6 +32,7 @@ SANDBOX_SAFE=0
 BLESS=0
 SKIP_JENKINS=0
 MAXIMUM_UNMOUNTING_ATTEMPTS=3
+MAXIMUM_CREATE_ATTEMPTS=5
 SIGNATURE=""
 NOTARIZE=""
 
@@ -375,8 +376,24 @@ if [[ $SANDBOX_SAFE -eq 0 ]]; then
 	else
 		FILESYSTEM_ARGUMENTS="-c c=64,a=16,e=16"
 	fi
-	hdiutil create ${HDIUTIL_VERBOSITY} -srcfolder "$SRC_FOLDER" -volname "${VOLUME_NAME}" \
-		-fs "${FILESYSTEM}" -fsargs "${FILESYSTEM_ARGUMENTS}" -format UDRW ${CUSTOM_SIZE} "${DMG_TEMP_NAME}"
+
+	create_attempts=0
+	until
+		(( create_attempts++ ))
+		hdiutil create ${HDIUTIL_VERBOSITY} -srcfolder "$SRC_FOLDER" -volname "${VOLUME_NAME}" \
+			-fs "${FILESYSTEM}" -fsargs "${FILESYSTEM_ARGUMENTS}" -format UDRW ${CUSTOM_SIZE} "${DMG_TEMP_NAME}"
+		exit_code=$?
+		(( exit_code ==  0 )) && break            # nothing goes wrong
+		(( exit_code != 16 )) && exit $exit_code  # exit with the original exit code
+		# The above statement returns 1 if test failed (exit_code == 16).
+		#   It can make the code in the {do... done} block to be executed
+	do
+		(( create_attempts == MAXIMUM_CREATE_ATTEMPTS )) && exit 16  # patience exhausted, exit with code EBUSY
+		echo "Wait a moment..."
+		sleep $(( 1 * (2 ** create_attempts) ))
+		echo "Attempt $create_attempts creating disk image"
+	done
+	unset create_attempts
 else
 	hdiutil makehybrid ${HDIUTIL_VERBOSITY} -default-volume-name "${VOLUME_NAME}" -hfs -o "${DMG_TEMP_NAME}" "$SRC_FOLDER"
 	hdiutil convert -format UDRW -ov -o "${DMG_TEMP_NAME}" "${DMG_TEMP_NAME}"
