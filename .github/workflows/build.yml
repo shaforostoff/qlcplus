@@ -120,6 +120,9 @@ jobs:
 
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
+        with:
+            key: qlcplus-linux
+            evict-old-files: 30d
 
       - name: Setup ruby cache
         uses: ruby/setup-ruby@v1
@@ -275,6 +278,9 @@ jobs:
 
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
+        with:
+            key: qlcplus-windows
+            evict-old-files: 30d
 
       - name: Set ENV variables
         shell: bash
@@ -547,6 +553,9 @@ jobs:
 
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
+        with:
+            key: qlcplus-macos
+            evict-old-files: 30d
 
       - name: Configure build
         shell: bash
