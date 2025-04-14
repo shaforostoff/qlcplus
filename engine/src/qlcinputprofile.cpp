@@ -22,6 +22,8 @@
 #include <QString>
 #include <QDebug>
 #include <QMap>
+#include <iostream>
+#include <chrono>
 
 #include "qlcinputchannel.h"
 #include "qlcinputprofile.h"
@@ -264,9 +266,20 @@ QMap<QString, QVariant> QLCInputProfile::globalSettings() const
 bool QLCInputProfile::insertChannel(quint32 channel,
                                     QLCInputChannel* ich)
 {
+    const auto start = std::chrono::steady_clock::now();
+
     if (ich != NULL && m_channels.contains(channel) == false)
     {
         m_channels.insert(channel, ich);
+
+        const auto end = std::chrono::steady_clock::now();
+        const std::chrono::duration<double> diff = end - start;
+        static double accu = 0.0;
+        static unsigned int count = 0;
+        accu += diff.count() * 1000;
+        if(++count % 1000 == 0)
+            std::cout << "insertChannel " << accu << " size = " << count << '\n';
+
         return true;
     }
     else
