@@ -24,8 +24,9 @@
 #include <QVariant>
 #include <QObject>
 #include <QString>
-#include <QHash>
 #include <QMap>
+
+#include <flatmap.h>
 
 class QLCInputChannel;
 class QLCInputProfile;
@@ -182,7 +183,7 @@ public:
     /**
      * Get available channels.
      */
-    QMap <quint32,QLCInputChannel*> channels() const;
+    FlatMap<quint32,QLCInputChannel*> channels() const;
 
     /**
      *  Retrieve additional parameters to be passed to plugins
@@ -197,7 +198,7 @@ private:
 protected:
     /** Channel objects present in this profile. This is a QMap and not a
         QList because not all channels might be present. */
-    QMap <quint32, QLCInputChannel*> m_channels;
+    FlatMap<quint32, QLCInputChannel*> m_channels;
 
     /********************************************************************
      * Color Translation Table

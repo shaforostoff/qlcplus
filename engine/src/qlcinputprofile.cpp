@@ -67,11 +67,9 @@ QLCInputProfile *QLCInputProfile::createCopy()
     copy->setMidiSendNoteOff(this->midiSendNoteOff());
 
     /* Copy the other profile's channels */
-    QMapIterator <quint32,QLCInputChannel*> it(this->channels());
-    while (it.hasNext() == true)
+    for(auto it = m_channels.begin(); it != m_channels.end(); it++)
     {
-        it.next();
-        copy->insertChannel(it.key(), it.value()->createCopy());
+        copy->insertChannel(it->first, it->second->createCopy());
     }
 
     /* Copy the other profile's color table */
@@ -110,11 +108,9 @@ QLCInputProfile& QLCInputProfile::operator=(const QLCInputProfile& profile)
         destroyChannels();
 
         /* Copy the other profile's channels */
-        QMapIterator <quint32, QLCInputChannel*> it(profile.m_channels);
-        while (it.hasNext() == true)
+        for(auto it = profile.m_channels.begin(); it != profile.m_channels.end(); it++)
         {
-            it.next();
-            insertChannel(it.key(), it.value()->createCopy());
+            insertChannel(it->first, it->second->createCopy());
         }
 
         /* Copy the other profile's color table */
@@ -264,24 +260,22 @@ QMap<QString, QVariant> QLCInputProfile::globalSettings() const
 bool QLCInputProfile::insertChannel(quint32 channel,
                                     QLCInputChannel* ich)
 {
-    if (ich != NULL && m_channels.contains(channel) == false)
-    {
-        m_channels.insert(channel, ich);
-        return true;
-    }
-    else
-    {
+    if (ich == NULL)
         return false;
-    }
+
+    return m_channels.emplace(channel, ich).second;
 }
 
 bool QLCInputProfile::removeChannel(quint32 channel)
 {
-    if (m_channels.contains(channel) == true)
+    auto it = m_channels.find(channel);
+    if (it != m_channels.end())
     {
-        QLCInputChannel* ich = m_channels.take(channel);
+        QLCInputChannel* ich = it->second;
         Q_ASSERT(ich != NULL);
         delete ich;
+
+        m_channels.erase(it);
         return true;
     }
     else
@@ -295,17 +289,17 @@ bool QLCInputProfile::remapChannel(QLCInputChannel* ich, quint32 number)
     if (ich == NULL)
         return false;
 
-    quint32 old = channelNumber(ich);
-    if (old != QLCChannel::invalid() && m_channels.contains(number) == false)
+    for(auto it = m_channels.begin(); it != m_channels.end(); it++)
     {
-        m_channels.remove(old);
-        insertChannel(number, ich);
-        return true;
+        if (it->second == ich)
+        {
+            m_channels.erase(it);
+            insertChannel(number, ich);
+            return true;
+        }
     }
-    else
-    {
-        return false;
-    }
+
+    return false;
 }
 
 QLCInputChannel* QLCInputProfile::channel(quint32 channel) const
@@ -318,18 +312,16 @@ quint32 QLCInputProfile::channelNumber(const QLCInputChannel* channel) const
     if (channel == NULL)
         return QLCChannel::invalid();
 
-    QMapIterator <quint32,QLCInputChannel*> it(m_channels);
-    while (it.hasNext() == true)
+    for(auto it = m_channels.begin(); it != m_channels.end(); it++)
     {
-        it.next();
-        if (it.value() == channel)
-            return it.key();
+        if (it->second == channel)
+            return it->first;
     }
 
     return QLCChannel::invalid();
 }
 
-QMap <quint32,QLCInputChannel*> QLCInputProfile::channels() const
+FlatMap<quint32,QLCInputChannel*> QLCInputProfile::channels() const
 {
     return m_channels;
 }
@@ -350,9 +342,8 @@ QVariant QLCInputProfile::channelExtraParams(const QLCInputChannel* channel) con
 void QLCInputProfile::destroyChannels()
 {
     /* Delete existing channels but leave the pointers there */
-    QMutableMapIterator <quint32,QLCInputChannel*> it(m_channels);
-    while (it.hasNext() == true)
-        delete it.next().value();
+    for(auto it = m_channels.begin(); it != m_channels.end(); it++)
+        delete it->second;
 
     /* Clear the list of freed pointers */
     m_channels.clear();
@@ -589,11 +580,9 @@ bool QLCInputProfile::saveXML(const QString& fileName)
         doc.writeTextElement(KXMLQLCInputProfileMidiSendNoteOff, QString(KXMLQLCFalse));
 
     /* Write channels to the document */
-    QMapIterator <quint32, QLCInputChannel*> it(m_channels);
-    while (it.hasNext() == true)
+    for(auto it = m_channels.begin(); it != m_channels.end(); it++)
     {
-        it.next();
-        it.value()->saveXML(&doc, it.key());
+        it->second->saveXML(&doc, it->first);
     }
 
     if (hasColorTable())

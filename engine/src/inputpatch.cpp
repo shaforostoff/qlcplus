@@ -261,11 +261,10 @@ void InputPatch::setProfilePageControls()
                 }
             }
         }
-        QMapIterator <quint32,QLCInputChannel*> it(m_profile->channels());
-        while (it.hasNext() == true)
+        const auto profileChannels = m_profile->channels();
+        for(auto it = profileChannels.begin(); it != profileChannels.end(); it++)
         {
-            it.next();
-            QLCInputChannel *ch = it.value();
+            QLCInputChannel *ch = it->second;
             if (ch != NULL)
             {
                 if (m_nextPageCh == USHRT_MAX && ch->type() == QLCInputChannel::NextPage)
