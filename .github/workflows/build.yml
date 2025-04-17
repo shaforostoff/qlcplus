@@ -18,7 +18,6 @@ jobs:
       CC: gcc
       CXX: g++
       PACKAGES_BASE:
-        gdb
         libasound2-dev
         libusb-1.0-0-dev
         libftdi1-dev
@@ -34,8 +33,22 @@ jobs:
         chrpath
         libfuse2
         wget
+        qt5-qmake
+        qtbase5-dev
+        qtbase5-dev-tools
+        qttools5-dev
+        qttools5-dev-tools
+        qtscript5-dev
+        qtdeclarative5-dev
+        qtmultimedia5-dev
+        libqt5multimedia5-plugins
+        libqt5svg5-dev
+        libqt5serialport5-dev
+        libqt5websockets5-dev
       PACKAGES_QML_BASE:
         libpulse-dev
+        qt3d5-dev
+        qt3d-defaultgeometryloader-plugin
       PACKAGES_COVERAGE_BASE:
         lcov
       QT_MODULES:
@@ -69,23 +82,19 @@ jobs:
         if: ${{ endsWith( matrix.task, 'qt5') }}
         run: |
           echo "QT=${QT:-$(echo '${{matrix.task}}' | cut -d '-' -f 2)}" >> $GITHUB_ENV
-          echo "QT_INSTALL_DIR=/opt" >> $GITHUB_ENV
-          echo "QT_VERSION=5.14.2" >> $GITHUB_ENV
+          echo "QT_VERSION=5.15.2" >> $GITHUB_ENV
           echo "QT_MODULES_INSTALL=$(echo ${QT_MODULES})" >> $GITHUB_ENV
           echo "APPVERSION=`grep '^!qmlui' variables.pri | grep APPVERSION | sed 's/^.*= *//;s/ /_/g'`" >> $GITHUB_ENV
-          source $GITHUB_ENV && echo "QTDIR=${QT_INSTALL_DIR}/Qt/${QT_VERSION}/gcc_64" >> $GITHUB_ENV
-          source $GITHUB_ENV && echo "QMAKE=${QTDIR}/bin/qmake" >> $GITHUB_ENV
+          source $GITHUB_ENV && echo "QMAKE=/usr/bin/qmake" >> $GITHUB_ENV
 
       - name: Set QT ENV variables (qt5qml)
         if: ${{ endsWith( matrix.task, 'qt5qml') }}
         run: |
           echo "QT=${QT:-$(echo '${{matrix.task}}' | cut -d '-' -f 2)}" >> $GITHUB_ENV
-          echo "QT_INSTALL_DIR=/opt" >> $GITHUB_ENV
           echo "QT_VERSION=5.14.2" >> $GITHUB_ENV
           echo "QT_MODULES_INSTALL=$(echo ${QT_MODULES})" >> $GITHUB_ENV
           echo "APPVERSION=`grep '^qmlui' variables.pri | grep APPVERSION | sed 's/^.*= *//;s/ /_/g'`" >> $GITHUB_ENV
-          source $GITHUB_ENV && echo "QTDIR=${QT_INSTALL_DIR}/Qt/${QT_VERSION}/gcc_64" >> $GITHUB_ENV
-          source $GITHUB_ENV && echo "QMAKE=${QTDIR}/bin/qmake" >> $GITHUB_ENV
+          source $GITHUB_ENV && echo "QMAKE=/usr/bin/qmake" >> $GITHUB_ENV
 
       - name: Print ENV vars
         run: |
@@ -106,14 +115,6 @@ jobs:
         with:
           packages: ${{env.PACKAGES_ALL}}
           version: ${{runner.os}}-apt
-
-      - name: Install Qt through aqt (and python)
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: ${{ env.QT_VERSION }}
-          cache: true
-          dir: ${{ env.QT_INSTALL_DIR }}
-          modules: ${{ env.QT_MODULES_INSTALL }}
 
       - name: Install python-lxml for fixtures-tool # with the now-registered aqt python
         run: pip install lxml
@@ -145,12 +146,12 @@ jobs:
       - name: Configure for Qt5 build
         if: ${{ matrix.task == 'compile-qt5' }}
         run: |
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$QTDIR/lib/cmake/" -Dappimage=ON -DINSTALL_ROOT=${INSTALL_ROOT} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -Dappimage=ON -DINSTALL_ROOT=${INSTALL_ROOT} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
       - name: Configure for QT5QML build
         if: ${{ matrix.task == 'compile-qt5qml' }}
         run: |
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$QTDIR/lib/cmake/" -Dqmlui=ON -Dappimage=ON -DINSTALL_ROOT=${INSTALL_ROOT} -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -Dqmlui=ON -Dappimage=ON -DINSTALL_ROOT=${INSTALL_ROOT} -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
       - name: Configure for Qt5 coverage build
         if: ${{ matrix.task == 'coverage-qt5' }}
