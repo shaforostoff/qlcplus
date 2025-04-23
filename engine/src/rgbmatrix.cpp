@@ -363,7 +363,9 @@ void RGBMatrix::setMapColors(RGBAlgorithm *algorithm)
         m_group = doc()->fixtureGroup(fixtureGroup());
 
     QVector<unsigned int> rawColors;
-    for (int i = 0; i < algorithm->acceptColors(); i++)
+    const int acceptColors = algorithm->acceptColors();
+    rawColors.reserve(acceptColors);
+    for (int i = 0; i < acceptColors; i++)
     {
         if (m_rgbColors.count() > i)
         {
