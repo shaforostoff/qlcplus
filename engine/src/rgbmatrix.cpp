@@ -245,7 +245,7 @@ void RGBMatrix::setAlgorithm(RGBAlgorithm *algo)
 
             QVector<uint> colors = script->rgbMapGetColors();
             for (int i = 0; i < colors.count(); i++)
-            	m_rgbColors.replace(i, QColor::fromRgb(colors.at(i)));
+                m_rgbColors.replace(i, QColor::fromRgb(colors.at(i)));
         }
     }
     m_stepsCount = algorithmStepsCount();

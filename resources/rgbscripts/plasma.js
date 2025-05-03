@@ -283,29 +283,39 @@ var testAlgo;
     {
       if (algo.presetIndex === 1)
       {
-        return [ 0xFFFF00, 0xFF0000, 0x000040, 0xFF0000 ];
+        var colorArray = new Array();
+        colorArray = [ 0xFFFF00, 0xFF0000, 0x000040, 0xFF0000 ];
+        return colorArray
       }
       else if (algo.presetIndex === 2)
       {
-        return [ 0x5571FF, 0x00FFFF, 0xFF00FF, 0xFFFF00 ];
+        var colorArray = new Array();
+        colorArray = [ 0x5571FF, 0x00FFFF, 0xFF00FF, 0xFFFF00 ];
+        return colorArray
       }
       else if (algo.presetIndex === 3)
       {
-        return [ 0x003AB9, 0x02EAFF ];
+        var colorArray = new Array();
+        colorArray = [ 0x003AB9, 0x02EAFF ];
+        return colorArray
       }
       else if (algo.presetIndex === 4)
       {
         if (util.colorArray.length <= 0)
         {
           // No user defined colors set, return default
-          return [ 0x00FF00, 0xFFAA00, 0x0000FF, 0xFFFF00, 0xFFFFFF ];
+          var colorArray = new Array();
+          colorArray = [ 0x00FF00, 0xFFAA00, 0x0000FF, 0xFFFF00, 0xFFFFFF ];
+          return colorArray
         }
         return util.colorArray;
       }
       else
       {
         // Either presetIndex === 0 or an invalid presetIndex
-        return [ 0xFF0000, 0x00FF00, 0x0000FF ];
+        var colorArray = new Array();
+        colorArray = [ 0xFF0000, 0x00FF00, 0x0000FF ];
+        return colorArray
       }
     }
 
